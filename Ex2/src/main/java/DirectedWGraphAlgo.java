@@ -3,12 +3,11 @@ import api.DirectedWeightedGraphAlgorithms;
 import api.EdgeData;
 import api.NodeData;
 import com.google.gson.*;
-import java.awt.*;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import java.util.*;
 import java.util.List;
 
@@ -54,23 +53,81 @@ public class DirectedWGraphAlgo implements DirectedWeightedGraphAlgorithms {
         }
     } //v
 
-    public void DFSShortPath(int src ,int v , double[][] mat){
-        return;
-    } // O
-
     @Override
     public double shortestPathDist(int src, int dest) {
-//        double[][] mat = new double[g.getNodes().size()][2];
-//        Arrays.fill(mat , Integer.MAX_VALUE);
-////        mat[src][0] = 0;
-//        DFSShortPath(src , src , mat);
-        return 0;
-    } // O
+        if (src == dest) return 0;
+        HashMap<Integer , Double> totalCost = new HashMap<>();
+        HashMap<Integer , Integer> prevNode = new HashMap<>();
+        HashMap<Integer , Double> minQueue = new HashMap<>();
+
+
+        for (NodeData node: g.getNodes().values()){
+            totalCost.put(node.getKey() , Double.MAX_VALUE);
+        }
+        totalCost.put(src , 0.0);
+        minQueue.put(src , 0.0);
+
+        while (!minQueue.isEmpty()){
+            int smallest = removeMin(minQueue);
+
+            for (EdgeData e : g.getEdges().get(smallest).values()){
+                if (g.getNodes().get(e.getDest()).getTag() !=1){
+                    minQueue.put(e.getDest() , e.getWeight());
+                    double newpath = totalCost.get(smallest) + e.getWeight();
+                    if (newpath < totalCost.get(e.getDest())){
+                        totalCost.put(e.getDest() , newpath);
+                        prevNode.put(e.getDest() , smallest);
+                    }
+                }
+            }
+        }
+        return totalCost.get(dest);
+    }
 
     @Override
     public List<NodeData> shortestPath(int src, int dest) {
+//        HashMap<Integer , Double> totalCost = new HashMap<>();
+//        HashMap<Integer , Integer> prevNode = new HashMap<>();
+//        HashMap<Integer , Double> minQueue = new HashMap<>();
+//
+//        totalCost.put(src , 0.0);
+//
+//        for (NodeData node: g.getNodes().values()){
+//            if (node.getKey() != totalCost.get(src)){
+//                totalCost.put(node.getKey() , Double.MAX_VALUE);
+//            }
+//        }
+//
+//        while (!minQueue.isEmpty()){
+//            int smallest = removeMin(minQueue);
+//
+//            for (EdgeData e : g.getEdges().get(smallest).values()){
+//                if (g.getNodes().get(e.getDest()).getTag() !=1){
+//                    double newpath = totalCost.get(smallest) + e.getWeight();
+//                    if (newpath < totalCost.get(e.getDest())){
+//                        totalCost.put(e.getDest() , newpath);
+//                        prevNode.put(e.getDest() , smallest);
+//                    }
+//                }
+//            }
+//        }
+//
         return null;
-    } // to implements first!!
+    }
+
+    public int removeMin(HashMap<Integer , Double> minQueue){
+        double min = Double.MAX_VALUE;
+        int index =0;
+        for (Integer node : minQueue.keySet()){
+            if (minQueue.get(node) < min){
+                min = minQueue.get(node);
+                index = node;
+            }
+        }
+        minQueue.remove(index);
+        g.getNodes().get(index).setTag(1);
+        return index;
+    }
 
     @Override
     public NodeData center() {

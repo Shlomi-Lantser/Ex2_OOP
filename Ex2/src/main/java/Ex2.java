@@ -50,9 +50,21 @@ public class Ex2 {
     public static void main(String[] args){
         DirectedWeightedGraphAlgorithms g = new DirectedWGraphAlgo();
         g.load("data/G1.json");
-        g.getGraph().removeNode(16);
-        g.getGraph().removeNode(12);
         System.out.println(g.isConnected());
+        System.out.println(g.shortestPathDist(0,15));
+
+//        g.getGraph().addNode(new Node(0,1,2,0));
+//        g.getGraph().addNode(new Node(1,2,6,0));
+//        g.getGraph().addNode(new Node(2,3,7,0));
+//        g.getGraph().addNode(new Node(3,4,8,0));
+//        g.getGraph().addNode(new Node(4,5,9,0));
+//        g.getGraph().connect(0,1,1);
+//        g.getGraph().connect(1,2,3);
+//        g.getGraph().connect(2,3,1);
+//        g.getGraph().connect(3,4,2);
+//        g.getGraph().connect(0,4,13);
+//        System.out.println(g.shortestPathDist(0,4));
+
 //        System.out.println(g.getGraph().nodeSize());
 //        System.out.println(g.getGraph().edgeSize());
 ////        g.getGraph().removeNode(2);
