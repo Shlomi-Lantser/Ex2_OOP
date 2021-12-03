@@ -81,39 +81,57 @@ public class DirectedWGraphAlgo implements DirectedWeightedGraphAlgorithms {
                 }
             }
         }
+        setTag0();
+        double result = -1;
+        if (totalCost.get(dest) == Double.MAX_VALUE) return result;
         return totalCost.get(dest);
-    }
+    } //v
 
     @Override
     public List<NodeData> shortestPath(int src, int dest) {
-//        HashMap<Integer , Double> totalCost = new HashMap<>();
-//        HashMap<Integer , Integer> prevNode = new HashMap<>();
-//        HashMap<Integer , Double> minQueue = new HashMap<>();
-//
-//        totalCost.put(src , 0.0);
-//
-//        for (NodeData node: g.getNodes().values()){
-//            if (node.getKey() != totalCost.get(src)){
-//                totalCost.put(node.getKey() , Double.MAX_VALUE);
-//            }
-//        }
-//
-//        while (!minQueue.isEmpty()){
-//            int smallest = removeMin(minQueue);
-//
-//            for (EdgeData e : g.getEdges().get(smallest).values()){
-//                if (g.getNodes().get(e.getDest()).getTag() !=1){
-//                    double newpath = totalCost.get(smallest) + e.getWeight();
-//                    if (newpath < totalCost.get(e.getDest())){
-//                        totalCost.put(e.getDest() , newpath);
-//                        prevNode.put(e.getDest() , smallest);
-//                    }
-//                }
-//            }
-//        }
-//
-        return null;
-    }
+        if (src == dest) return null;
+        List<NodeData> result = new LinkedList<>();
+        HashMap<Integer , Double> totalCost = new HashMap<>();
+        HashMap<Integer , Integer> prevNode = new HashMap<>();
+        HashMap<Integer , Double> minQueue = new HashMap<>();
+
+
+        for (NodeData node: g.getNodes().values()){
+            totalCost.put(node.getKey() , Double.MAX_VALUE);
+        }
+        totalCost.put(src , 0.0);
+        minQueue.put(src , 0.0);
+
+        while (!minQueue.isEmpty()){
+            int smallest = removeMin(minQueue);
+
+            for (EdgeData e : g.getEdges().get(smallest).values()){
+                if (g.getNodes().get(e.getDest()).getTag() !=1){
+                    minQueue.put(e.getDest() , e.getWeight());
+                    double newpath = totalCost.get(smallest) + e.getWeight();
+                    if (newpath < totalCost.get(e.getDest())){
+                        totalCost.put(e.getDest() , newpath);
+                        prevNode.put(e.getDest() , smallest);
+                    }
+                }
+            }
+        }
+
+        System.out.println(prevNode.get(4));
+        result.add(g.getNodes().get(dest));
+        int curr =prevNode.get(dest);
+
+        while (curr != src){
+            result.add(g.getNodes().get(curr));
+            curr = prevNode.get(curr);
+        }
+        result.add(g.getNodes().get(src));
+
+        int resultsize = result.size();
+
+        setTag0();
+        return result;
+    } //Needs to reverse the List !!! //v
 
     public int removeMin(HashMap<Integer , Double> minQueue){
         double min = Double.MAX_VALUE;
@@ -127,10 +145,12 @@ public class DirectedWGraphAlgo implements DirectedWeightedGraphAlgorithms {
         minQueue.remove(index);
         g.getNodes().get(index).setTag(1);
         return index;
-    }
+    } //v
+
 
     @Override
     public NodeData center() {
+        if (!this.isConnected()) return null;
         return null;
     }
 

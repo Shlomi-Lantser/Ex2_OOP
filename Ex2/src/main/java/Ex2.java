@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.jar.JarEntry;
 
 /**
@@ -52,6 +53,10 @@ public class Ex2 {
         g.load("data/G1.json");
         System.out.println(g.isConnected());
         System.out.println(g.shortestPathDist(0,15));
+        List<NodeData> tmp = g.shortestPath(0,15);
+        for (NodeData node : tmp){
+            System.out.println(node.toString());
+        }
 
 //        g.getGraph().addNode(new Node(0,1,2,0));
 //        g.getGraph().addNode(new Node(1,2,6,0));
@@ -63,7 +68,11 @@ public class Ex2 {
 //        g.getGraph().connect(2,3,1);
 //        g.getGraph().connect(3,4,2);
 //        g.getGraph().connect(0,4,13);
-//        System.out.println(g.shortestPathDist(0,4));
+//        List<NodeData> tmp = g.shortestPath(0,4);
+//        for (NodeData node : tmp){
+//            System.out.println(node.toString());
+//        }
+
 
 //        System.out.println(g.getGraph().nodeSize());
 //        System.out.println(g.getGraph().edgeSize());

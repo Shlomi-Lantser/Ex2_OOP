@@ -84,10 +84,9 @@ public class Node implements NodeData , GeoLocation{
         return Math.sqrt(xDif + yDif + zDif);
     }
 
-//    public String toString(){
-//        return "{"+
-//                "pos:" + this.x() + "," +this.y() + "," + this.z() +","
-//                +"id:" +this.getKey()+
-//                "}";
-//    }
+    public String toString(){
+        return "{"+
+                "id:" +this.getKey()+
+                "}";
+    }
 }
