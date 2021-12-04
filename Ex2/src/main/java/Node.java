@@ -13,6 +13,7 @@ public class Node implements NodeData , GeoLocation{
     private double x;
     private double y;
     private double z;
+    private double weight =0;
 
     public Node(int key , double x, double y, double z){
         this.key = key;
@@ -35,12 +36,12 @@ public class Node implements NodeData , GeoLocation{
 
     @Override
     public double getWeight() {
-        return 0;
+        return this.weight;
     }
 
     @Override
     public void setWeight(double w) {
-        return;
+        this.weight = w;
     }
 
     @Override

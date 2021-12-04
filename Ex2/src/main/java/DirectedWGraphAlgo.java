@@ -89,6 +89,7 @@ public class DirectedWGraphAlgo implements DirectedWeightedGraphAlgorithms {
 
     @Override
     public List<NodeData> shortestPath(int src, int dest) {
+        int counter =0;
         if (src == dest) return null;
         List<NodeData> result = new LinkedList<>();
         HashMap<Integer , Double> totalCost = new HashMap<>();
@@ -96,7 +97,7 @@ public class DirectedWGraphAlgo implements DirectedWeightedGraphAlgorithms {
         HashMap<Integer , Double> minQueue = new HashMap<>();
 
 
-        for (NodeData node: g.getNodes().values()){
+        for (NodeData node: g.getNodes().values()){ //O(|V|)
             totalCost.put(node.getKey() , Double.MAX_VALUE);
         }
         totalCost.put(src , 0.0);
@@ -117,7 +118,6 @@ public class DirectedWGraphAlgo implements DirectedWeightedGraphAlgorithms {
             }
         }
 
-        System.out.println(prevNode.get(4));
         result.add(g.getNodes().get(dest));
         int curr =prevNode.get(dest);
 
@@ -128,7 +128,6 @@ public class DirectedWGraphAlgo implements DirectedWeightedGraphAlgorithms {
         result.add(g.getNodes().get(src));
 
         int resultsize = result.size();
-
         setTag0();
         return result;
     } //Needs to reverse the List !!! //v
@@ -147,11 +146,37 @@ public class DirectedWGraphAlgo implements DirectedWeightedGraphAlgorithms {
         return index;
     } //v
 
-
     @Override
     public NodeData center() {
         if (!this.isConnected()) return null;
-        return null;
+        HashMap<Integer , Double> comperator = new HashMap<>();
+        int index;
+        for (NodeData node : g.getNodes().values()){
+            index = node.getKey();
+            double maxShortestDist =0;
+            for (NodeData nodeDest : g.getNodes().values()){
+                if (maxShortestDist < shortestPathDist(node.getKey() , nodeDest.getKey())) {
+                    maxShortestDist = shortestPathDist(node.getKey() , nodeDest.getKey());
+                }
+            }
+            comperator.put(index , maxShortestDist);
+        }
+        int i=0;
+        int j=0;
+        double min = comperator.get(0);
+        for (double node : comperator.values()){
+            if (comperator.get(i) <= min){
+                min = comperator.get(i);
+                j=i;
+            }
+            i++;
+        }
+
+        return g.getNodes().get(j);
+    } //v
+
+    private List<List<NodeData>> permutation(){
+
     }
 
     @Override
