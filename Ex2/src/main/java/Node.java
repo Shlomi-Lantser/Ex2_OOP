@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 
-public class Node implements NodeData , GeoLocation{
+public class Node implements NodeData , GeoLocation , Comparable<NodeData>{
 
     private int key;
     private GeoLocation geo;
@@ -89,5 +89,14 @@ public class Node implements NodeData , GeoLocation{
         return "{"+
                 "id:" +this.getKey()+
                 "}";
+    }
+
+    @Override
+    public int compareTo(NodeData o) {
+        if (o == null) return 1;
+        if(this.weight > o.getWeight()) return 1;
+        else if(this.weight == o.getWeight()) return 0;
+        return -1;
+
     }
 }

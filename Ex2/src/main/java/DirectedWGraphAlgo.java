@@ -13,6 +13,7 @@ import java.util.List;
 
 public class DirectedWGraphAlgo implements DirectedWeightedGraphAlgorithms {
     DirectedWGraph g;
+    private HashMap<NodeData, NodeData> parents = new HashMap<>();
 
     public DirectedWGraphAlgo(){
         this.g = new DirectedWGraph();
@@ -55,129 +56,138 @@ public class DirectedWGraphAlgo implements DirectedWeightedGraphAlgorithms {
 
     @Override
     public double shortestPathDist(int src, int dest) {
+        if (this.getGraph() == null) return -1;
+
+        NodeData srcPoint = this.getGraph().getNode(src);
+        NodeData destPoint = this.getGraph().getNode(dest);
+
+        if (srcPoint == null || destPoint == null) return -1;
         if (src == dest) return 0;
-        HashMap<Integer , Double> totalCost = new HashMap<>();
-        HashMap<Integer , Integer> prevNode = new HashMap<>();
-        HashMap<Integer , Double> minQueue = new HashMap<>();
+
+        double pathWeight;
+
+        setWeightINF(this.getGraph());
+
+        Dijkstra((Node) srcPoint, (Node) destPoint);
+
+        pathWeight = destPoint.getWeight() == Double.MAX_VALUE ? -1 : destPoint.getWeight();
+
+        return pathWeight;
+    }
+
+    private double Dijkstra(Node curr, Node dest) {
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        curr.setWeight(0);
+        pq.add(curr);
+        curr.setTag(1);
+        double shortest = Double.MAX_VALUE;
+
+        while (!pq.isEmpty()) {
+            //Start to explore this node
+            curr = pq.poll();
+            curr.setTag(1);
+
+            //if he doesnt have any adj
+            if (this.getGraph().edgeIter(curr.getKey()) == null) continue;
 
 
-        for (NodeData node: g.getNodes().values()){
-            totalCost.put(node.getKey() , Double.MAX_VALUE);
-        }
-        totalCost.put(src , 0.0);
-        minQueue.put(src , 0.0);
+            //Explore all the adj nodes
+            Iterator<EdgeData> it = getGraph().edgeIter(curr.getKey());
+            Node finalCurr = curr;
+            while(it.hasNext()){
+                EdgeData edgeData = it.next();
+                NodeData adj = getGraph().getNode(edgeData.getDest());
 
-        while (!minQueue.isEmpty()){
-            int smallest = removeMin(minQueue);
+                //Here we replace the weight if there any shorter path
+                double pathWeight = finalCurr.getWeight() + edgeData.getWeight();
+                if (adj.getWeight() > pathWeight) {
+                    adj.setWeight(pathWeight);
 
-            for (EdgeData e : g.getEdges().get(smallest).values()){
-                if (g.getNodes().get(e.getDest()).getTag() !=1){
-                    minQueue.put(e.getDest() , e.getWeight());
-                    double newpath = totalCost.get(smallest) + e.getWeight();
-                    if (newpath < totalCost.get(e.getDest())){
-                        totalCost.put(e.getDest() , newpath);
-                        prevNode.put(e.getDest() , smallest);
-                    }
+                    //set adj node to be child of curr node
+                    parents.put(adj, finalCurr);
                 }
+
+                if (adj.getTag() == 0) pq.add((Node) adj);
             }
+            if (dest != null && curr.getKey() == dest.getKey()) return curr.getWeight();
+//            it.forEachRemaining(edgeData -> {
+//                NodeData adj = getGraph().getNode(edgeData.getDest());
+//
+//                //Here we replace the weight if there any shorter path
+//                double pathWeight = finalCurr.getWeight() + edgeData.getWeight();
+//                if (adj.getWeight() > pathWeight) {
+//                    adj.setWeight(pathWeight);
+//
+//                    //set adj node to be child of curr node
+//                    parents.put(adj, finalCurr);
+//                    if (adj == dest) return ;
+//                }
+//
+//                if (adj.getTag() == 0) pq.add((Node) adj);
+//
+//
+//            });
+
+//            while (it.hasNext()) {
+//                EdgeData details = it.next();
+//                NodeData adj = getGraph().getNode(details.getDest());
+//
+//                //Here we replace the weight if there any shorter path
+//                double pathWeight = curr.getWeight() + details.getWeight();
+//                if (adj.getWeight() > pathWeight) {
+//                    adj.setWeight(pathWeight);
+//
+//                    //set adj node to be child of curr node
+//                    parents.put(adj, curr);
+//                    if(adj==dest) return;
+//                }
+//
+//                if (adj.getTag()==0) pq.add((Node) adj);
+//
+//            }
         }
-        setTag0();
-        double result = -1;
-        if (totalCost.get(dest) == Double.MAX_VALUE) return result;
-        return totalCost.get(dest);
-    } //v
+        return -1;
+    }
 
     @Override
     public List<NodeData> shortestPath(int src, int dest) {
-        int counter =0;
-        if (src == dest) return null;
-        List<NodeData> result = new LinkedList<>();
-        HashMap<Integer , Double> totalCost = new HashMap<>();
-        HashMap<Integer , Integer> prevNode = new HashMap<>();
-        HashMap<Integer , Double> minQueue = new HashMap<>();
-
-
-        for (NodeData node: g.getNodes().values()){ //O(|V|)
-            totalCost.put(node.getKey() , Double.MAX_VALUE);
+            return null;
         }
-        totalCost.put(src , 0.0);
-        minQueue.put(src , 0.0);
-
-        while (!minQueue.isEmpty()){
-            int smallest = removeMin(minQueue);
-
-            for (EdgeData e : g.getEdges().get(smallest).values()){
-                if (g.getNodes().get(e.getDest()).getTag() !=1){
-                    minQueue.put(e.getDest() , e.getWeight());
-                    double newpath = totalCost.get(smallest) + e.getWeight();
-                    if (newpath < totalCost.get(e.getDest())){
-                        totalCost.put(e.getDest() , newpath);
-                        prevNode.put(e.getDest() , smallest);
-                    }
-                }
-            }
-        }
-
-        result.add(g.getNodes().get(dest));
-        int curr =prevNode.get(dest);
-
-        while (curr != src){
-            result.add(g.getNodes().get(curr));
-            curr = prevNode.get(curr);
-        }
-        result.add(g.getNodes().get(src));
-
-        int resultsize = result.size();
-        setTag0();
-        return result;
-    } //Needs to reverse the List !!! //v
-
-    public int removeMin(HashMap<Integer , Double> minQueue){
-        double min = Double.MAX_VALUE;
-        int index =0;
-        for (Integer node : minQueue.keySet()){
-            if (minQueue.get(node) < min){
-                min = minQueue.get(node);
-                index = node;
-            }
-        }
-        minQueue.remove(index);
-        g.getNodes().get(index).setTag(1);
-        return index;
-    } //v
 
     @Override
     public NodeData center() {
+        HashMap<Integer , Double> maxShortestSrc = new HashMap<>();
         if (!this.isConnected()) return null;
-        HashMap<Integer , Double> comperator = new HashMap<>();
-        int index;
-        for (NodeData node : g.getNodes().values()){
-            index = node.getKey();
-            double maxShortestDist =0;
+        for (NodeData nodeSrc : g.getNodes().values()){
+            int indexmax = 0;
+            double maxShortest = nodeSrc.getWeight();
+            int index = nodeSrc.getKey();
             for (NodeData nodeDest : g.getNodes().values()){
-                if (maxShortestDist < shortestPathDist(node.getKey() , nodeDest.getKey())) {
-                    maxShortestDist = shortestPathDist(node.getKey() , nodeDest.getKey());
+                if (nodeDest.getKey() == nodeSrc.getKey()) continue;
+                double dist = shortestPathDist(nodeSrc.getKey() , nodeDest.getKey());
+                if (maxShortest < dist){
+                    maxShortest = dist;
+                    indexmax = nodeDest.getKey();
                 }
             }
-            comperator.put(index , maxShortestDist);
+            maxShortestSrc.put(nodeSrc.getKey() , maxShortest);
+            System.out.println(nodeSrc.getKey() + ":" + maxShortest + " Dest :" + indexmax);
         }
-        int i=0;
-        int j=0;
-        double min = comperator.get(0);
-        for (double node : comperator.values()){
-            if (comperator.get(i) <= min){
-                min = comperator.get(i);
-                j=i;
+        double minWeight = Double.MAX_VALUE;
+        int minNode =0;
+
+        Iterator<Integer> node = maxShortestSrc.keySet().iterator();
+        for (Double weight : maxShortestSrc.values()){
+            int nnode = node.next();
+            if (weight < minWeight){
+                minWeight = weight;
+                minNode = nnode;
             }
-            i++;
         }
 
-        return g.getNodes().get(j);
+        return g.getNodes().get(minNode);
     } //v
 
-    private List<List<NodeData>> permutation(){
-
-    }
 
     @Override
     public List<NodeData> tsp(List<NodeData> cities) {
@@ -244,4 +254,12 @@ public class DirectedWGraphAlgo implements DirectedWeightedGraphAlgorithms {
             node.setTag(0);
         }
     } //set all nodes tag to 0.
+
+    private void setWeightINF(DirectedWeightedGraph graph) {
+        Iterator<NodeData> it = graph.nodeIter();
+        it.forEachRemaining(nodeData -> {
+            nodeData.setWeight(Double.MAX_VALUE);
+            nodeData.setTag(0);
+        });
+    }
 }
